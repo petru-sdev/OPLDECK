@@ -1,0 +1,48 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.opldeck-integration-*/
+Contexto/
+
+# --- OPL Deck: bloqueios de segurança ---
+*.AppImage
+*.iso
+*.bin
+*.cue
+*.zso
+*.cso
+*.chd
+*.zip
+*.7z
+*.rar
+ul.cfg
+ul.*.*.*
+*.exe
+*.dll
+*.log
+logs/
+documentacao-interna-removida
+
+# Arquivos de contexto e instruções privadas
+AGENTS.md
+AGENT.md
+
+# Configurações locais e credenciais
+.env
+.env.*
+!.env.example
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini

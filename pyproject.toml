@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opl-deck"
+version = "0.8.0"
+description = "OPL Deck — biblioteca de jogos PS2, conversão ISO/UL/BIN e gerenciamento OPL para Linux"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["PySide6>=6.6,<7", "py7zr>=1.1.4,<1.2"]
+
+[project.urls]
+Repository = "https://github.com/petru-sdev/opldeck"
+Issues = "https://github.com/petru-sdev/opldeck/issues"
+Changelog = "https://github.com/petru-sdev/opldeck/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+appimage = ["pyinstaller>=6.16,<7"]
+
+[project.scripts]
+opldeck = "opldeck.__main__:main"
+opl-deck = "opldeck.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["opldeck*"]

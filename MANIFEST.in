@@ -1,0 +1,12 @@
+include README.md CHANGELOG.md LICENSE pyproject.toml
+recursive-include opldeck *.py
+recursive-include tests *.py
+recursive-include tools *.py *.c
+include tools/packaging/appimage.Dockerfile
+recursive-include docs *.md *.png
+prune Contexto
+prune .git
+prune .venv
+prune build
+prune dist
+global-exclude __pycache__ *.py[cod]

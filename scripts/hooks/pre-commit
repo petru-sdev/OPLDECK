@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -u
+falhou=0
+arquivos=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$arquivos" ] && exit 0
+
+proibidos=$(printf '%s\n' "$arquivos" | grep -iE '\.(iso|bin|cue|zso|cso|chd|exe|dll|zip|7z|rar|log)$|(^|/)ul\.cfg$|(^|/)ul\.[0-9A-Fa-f]{8}\.' || true)
+if [ -n "$proibidos" ]; then
+  echo "BLOQUEADO: arquivos que não devem ir para o repositório:"
+  printf '  %s\n' $proibidos
+  falhou=1
+fi
+
+while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  tam=$(wc -c < "$f")
+  if [ "$tam" -gt 5242880 ]; then
+    echo "BLOQUEADO: $f tem $(( (tam+1048575)/1048576 )) MiB (limite 5 MiB)"
+    falhou=1
+  fi
+done <<< "$arquivos"
+
+pessoal=$(git diff --cached -U0 -- . ':!scripts/hooks/pre-commit' | grep -E '^\+[^+]' | grep -E '/home/[A-Za-z0-9._-]+/|/run/media/[A-Za-z0-9._-]+/|/media/[A-Za-z0-9._-]+/|C:\\Users\\' | grep -vE '/home/(usuario|seu_usuario|SEU_USUARIO|user)/|/run/media/(usuario|seu_usuario|SEU_USUARIO|user)/|/media/(usuario|seu_usuario|SEU_USUARIO|user)/' || true)
+if [ -n "$pessoal" ]; then
+  echo "ATENÇÃO: possíveis caminhos pessoais nas linhas adicionadas:"
+  printf '%s\n' "$pessoal" | head -10
+  echo "Troque por exemplos genéricos (ex.: /home/usuario/...)."
+  falhou=1
+fi
+
+[ "$falhou" -eq 1 ] && { echo; echo "Commit cancelado. Corrija e tente de novo."; exit 1; }
+exit 0

@@ -1,0 +1,83 @@
+name: Build OPL Deck - Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows x64
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v7
+
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          architecture: x64
+
+      - name: Instalar dependências
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+
+          if (Test-Path "requirements.txt") {
+            python -m pip install -r requirements.txt
+          }
+
+          if ((Test-Path "pyproject.toml") -or (Test-Path "setup.py")) {
+            python -m pip install .
+          }
+
+          python -m pip install pyinstaller
+
+      - name: Verificar estrutura do projeto
+        shell: pwsh
+        run: |
+          Write-Host "Verificando entrada do aplicativo..."
+
+          if (!(Test-Path "tools/packaging/packaging_entry.py")) {
+            Write-Error "Arquivo tools/packaging/packaging_entry.py não encontrado!"
+            exit 1
+          }
+
+          Write-Host "Entrada encontrada!"
+          Get-ChildItem -Path "opldeck" -Name
+
+      - name: Compilar OPL Deck
+        shell: pwsh
+        run: |
+          python -m PyInstaller `
+            --noconfirm `
+            --clean `
+            --onefile `
+            --windowed `
+            --paths "." `
+            --name "OPL-Deck" `
+            tools/packaging/packaging_entry.py
+
+      - name: Verificar executável
+        shell: pwsh
+        run: |
+          if (!(Test-Path "dist/OPL-Deck.exe")) {
+            Write-Error "Executável não encontrado!"
+            exit 1
+          }
+
+          Get-Item "dist/OPL-Deck.exe" |
+            Select-Object Name, Length
+
+      - name: Disponibilizar executável
+        uses: actions/upload-artifact@v7
+        with:
+          name: OPL-Deck-Windows-x64
+          path: dist/OPL-Deck.exe
+          if-no-files-found: error
+          retention-days: 30
